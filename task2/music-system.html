@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUSIC PLAYER | 2023</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="music-player-body">
+        <h2> MUSIC PLAYER </h2>
+        <img class="track-image" id="trackImage" src="trackimages/default.jpg" alt="Track Image">
+
+        <h3 id="trackName"></h3>
+        <audio id="audioPlayer" controls>
+            <source src="music/Coldplay - Yellow.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+
+        <!-- Progress bar -->
+        <input type="range" id="progressBar" value="0" step="1" min="0" max="100">
+
+        <div class="controls">
+            <button class="prev-button" id="prevButton">&#9665;</button>
+            <button class="play-pause-button" id="playPauseButton">&#9658;</button>
+            <button class="next-button" id="nextButton">&#9655;</button>
+        </div>
+    </div>
+
+    <script>
+        // Get references to HTML elements
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playPauseButton = document.getElementById('playPauseButton');
+        const nextButton = document.getElementById('nextButton');
+        const prevButton = document.getElementById('prevButton');
+        const trackNameElement = document.getElementById('trackName');
+        const trackImageElement = document.getElementById('trackImage');
+        const progressBar = document.getElementById('progressBar');
+
+        // Define the audio files with names and images
+        const audioFiles = [
+    { name: 'yellow', src: 'music/Coldplay - Yellow.mp3', image: 'trackimages/yellow.jpg' },
+    { name: 'loseyourself', src: 'music/Eminem_Lose_Yourself.mp3', image: 'trackimages/loseyourself.jpg' },
+    { name: 'intheend', src: 'music/In the end - Linkin Park.mp3', image: 'trackimages/intheend.jpg' },
+    { name: 'Theweekend', src: 'music/The Weeknd - Blinding Lights (Official Audio).mp3', image: 'trackimages/Theweekend.jpg' },
+    { name: 'NothingElse Matters', src: 'music/NothingElseMattersMetallica.mp3', image: 'trackimages/NothingElse Matters.jpg' },
+    { name:  'Radioactive', src:'music/Radioactive.mp3', image: 'trackimages/Radioactive.jpg'} // New track added
+]; 
+
+        let currentTrack = 0;
+        let isPlaying = false;
+
+        // Function to update the track name and image
+        function updateTrackInfo() {
+            const current = audioFiles[currentTrack];
+            trackNameElement.textContent = current.name;
+
+            // Check if the image exists
+            const img = new Image();
+            img.src = current.image;
+            img.onload = () => {
+                trackImageElement.src = current.image;
+            };
+            img.onerror = () => {
+                trackImageElement.src = 'trackimages/default.jpg'; // Fallback to default image
+            };
+
+            audioPlayer.src = current.src;
+        }
+
+        // Function to toggle play/pause
+        function togglePlayPause() {
+            if (isPlaying) {
+                audioPlayer.pause();
+                isPlaying = false;
+                playPauseButton.textContent = '\u25BA'; // Play icon
+            } else {
+                audioPlayer.play();
+                isPlaying = true;
+                playPauseButton.textContent = '\u275A\u275A'; // Pause icon
+            }
+        }
+
+        // Event listener for play/pause button
+        playPauseButton.addEventListener('click', togglePlayPause);
+
+        // Event listener for next button
+        nextButton.addEventListener('click', () => {
+            currentTrack = (currentTrack + 1) % audioFiles.length;
+            updateTrackInfo();
+            if (isPlaying) audioPlayer.play();
+        });
+
+        // Event listener for previous button
+        prevButton.addEventListener('click', () => {
+            currentTrack = (currentTrack - 1 + audioFiles.length) % audioFiles.length;
+            updateTrackInfo();
+            if (isPlaying) audioPlayer.play();
+        });
+
+        // Update progress bar as track plays
+        audioPlayer.addEventListener('timeupdate', () => {
+            if (audioPlayer.duration) {
+                const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progressBar.value = progress;
+            }
+        });
+
+        // Seek when progress bar is changed
+        progressBar.addEventListener('input', (e) => {
+            const newTime = (e.target.value / 100) * audioPlayer.duration;
+            audioPlayer.currentTime = newTime;
+            if (isPlaying) audioPlayer.play();
+        });
+
+        // Automatically play next song when the current one ends
+        audioPlayer.addEventListener('ended', () => {
+            currentTrack = (currentTrack + 1) % audioFiles.length;
+            updateTrackInfo();
+            if (isPlaying) audioPlayer.play();
+        });
+
+        // Initialize track info
+        updateTrackInfo();
+
+    </script>
+</body>
+
+</html>
